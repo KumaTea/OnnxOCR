@@ -1,0 +1,19 @@
+include LICENSE
+include README.pypi.md
+include Readme.md
+include Readme_cn.md
+include Readme_ja.md
+
+# Model weights and the font used by draw_ocr / visualization helpers.
+recursive-include onnxocr/models *.onnx *.txt
+recursive-include onnxocr/fonts *.ttf
+recursive-include onnxocr/rapid_doc/resources *.onnx *.ftz *.html
+
+# Engine/model config files shipped inside the rapid_* packages.
+recursive-include onnxocr *.yaml *.yml *.json
+
+# ~8 MB of demo images; no runtime code path depends on them.
+prune onnxocr/test_images
+
+global-exclude *.py[cod]
+global-exclude __pycache__

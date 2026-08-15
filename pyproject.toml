@@ -1,0 +1,147 @@
+[build-system]
+requires = ["setuptools>=77.0.3", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "onnxocr"
+version = "3.1.0"
+description = "A lightweight OCR system based on PaddleOCR, running on ONNX Runtime without PaddlePaddle"
+readme = "README.pypi.md"
+# onnxruntime dropped Python 3.10 at 1.24.4, so a >=3.10 floor would both pin
+# core users to onnxruntime 1.24.3 and make the qwen extra (onnxruntime>=1.26)
+# unresolvable. Python 3.10 also reaches EOL in October 2026.
+requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICEN[CS]E*"]
+authors = [
+    {name = "jingsongliujing", email = "45508593+jingsongliujing@users.noreply.github.com"},
+]
+maintainers = [
+    {name = "KumaTea", email = "KumaTea@outlook.com"},
+]
+keywords = [
+    "ocr",
+    "onnx",
+    "onnxruntime",
+    "paddleocr",
+    "ppocr",
+    "ppocrv5",
+    "text-detection",
+    "text-recognition",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Scientific/Engineering :: Image Recognition",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+# Verified empirically: installed into an empty venv one at a time until
+# `from onnxocr.onnx_paddleocr import ONNXPaddleOcr` imported and a real
+# det+cls+rec inference (plus sav2Img) completed. Nothing here is speculative.
+dependencies = [
+    "numpy",
+    "opencv-python-headless",
+    "pillow",
+    "onnxruntime",
+    "shapely",
+    "pyclipper",
+    "loguru",
+    "colorlog",
+    "omegaconf",
+    "requests",
+    "tqdm",
+]
+
+[project.optional-dependencies]
+# onnxocr/ocr_images_pdfs.py — both imports are guarded, so PDF input is opt-in.
+pdf = [
+    "pymupdf",
+    "pdf2image",
+]
+
+# onnxocr.Qwen35ONNX / QwenScenarioExtractor. Every import in qwen35_2b.py is
+# function-level, so `import onnxocr` itself stays dependency-free.
+# onnxruntime>=1.26 is required only here: older builds lack the contrib ops
+# used by the Qwen3.5-2B q4 ONNX graphs.
+qwen = [
+    "onnxruntime>=1.26.0",
+    "tokenizers",
+    "json-repair",
+    "modelscope",
+    "huggingface-hub",
+]
+
+# onnxocr.rapid_doc — document -> Markdown pipeline (layout, reading order,
+# tables, formulas). Derived the same empirical way, against
+# `from onnxocr.rapid_doc import RapidDoc`.
+doc = [
+    "magika",
+    "tokenizers",
+    "fast-langdetect",
+    "beautifulsoup4",
+    "pypdfium2",
+    "pypdf",
+    "pdfminer.six",
+    "pdftext",
+    "reportlab",
+    "pydantic",
+    "boto3",
+    "matplotlib",
+]
+
+# Office/HTML/LaTeX converters behind rapid_doc's lazy and try/except-guarded
+# imports. Only needed to convert those specific input formats.
+office = [
+    "python-docx",
+    "python-pptx",
+    "openpyxl",
+    "lxml",
+    "mammoth",
+    "markdown-it-py",
+    "mdit-py-plugins",
+    "pygments",
+    "pylatexenc",
+    "ftfy",
+    "img2table",
+    "polars",
+    "scipy",
+    "scikit-image",
+]
+
+all = [
+    "onnxocr[pdf,qwen,doc,office]",
+]
+
+[project.urls]
+Homepage = "https://github.com/jingsongliujing/OnnxOCR"
+Repository = "https://github.com/jingsongliujing/OnnxOCR"
+Issues = "https://github.com/jingsongliujing/OnnxOCR/issues"
+Packaging = "https://github.com/KumaTea/OnnxOCR"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["onnxocr*"]
+namespaces = false
+
+[tool.setuptools.package-data]
+# `models/`, `fonts/` and `rapid_doc/resources/` are plain data directories
+# (no __init__.py), so they must be addressed via their enclosing package.
+# test_images/ is deliberately excluded: ~8 MB of demo images no runtime path needs.
+"*" = ["*.yaml", "*.yml", "*.json", "*.txt", "*.html"]
+"onnxocr" = [
+    "models/**/*.onnx",
+    "models/**/*.txt",
+    "fonts/*.ttf",
+]
+"onnxocr.rapid_doc" = [
+    "resources/**/*.onnx",
+    "resources/**/*.ftz",
+    "resources/**/*.html",
+]
