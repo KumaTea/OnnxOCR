@@ -1,0 +1,75 @@
+{% set name = "onnxocr" %}
+{% set version = environ.get('ONNXOCR_VERSION', '3.1.0') %}
+{% set sha256 = environ.get('ONNXOCR_SHA256', 'b399e0aad42a104292533d6dc8ca5d284fd97375351be5d203c7d6769b7c03d6') %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  # Built from the exact sdist published to PyPI, so the conda package and the
+  # wheel are the same bits. build_conda.ps1 refreshes version/sha256 via env vars.
+  url: https://pypi.org/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  sha256: {{ sha256 }}
+
+build:
+  # Pure Python with bundled ONNX data files and no compiled extensions, so one
+  # noarch package serves every OS and architecture. No compiler is involved.
+  noarch: python
+  number: 0
+  script: {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
+
+requirements:
+  host:
+    - python >=3.11
+    - pip
+    - setuptools >=77.0.3
+    - wheel
+  run:
+    - python >=3.11
+    - numpy
+    # conda-forge has no opencv-python-headless; py-opencv is the cv2 binding.
+    - py-opencv
+    - pillow
+    # conda-forge ships CPU and CUDA variants of onnxruntime, and the CUDA
+    # builds carry a higher build number (200 vs 0). A bare `onnxruntime` dep
+    # therefore wins the solve on any machine reporting the __cuda virtual
+    # package and drags in ~1.8 GB of libcudnn/libcublas/cuda-nvrtc. Pinning the
+    # CPU build keeps parity with PyPI, where `onnxruntime` is CPU-only and GPU
+    # support is the separate onnxruntime-gpu package. GPU users: install
+    # onnxocr with --no-deps and pick the CUDA build of onnxruntime yourself.
+    - onnxruntime * *cpu*
+    - shapely
+    - pyclipper
+    - loguru
+    - colorlog
+    - omegaconf
+    - requests
+    - tqdm
+
+test:
+  imports:
+    - onnxocr
+    - onnxocr.onnx_paddleocr
+  # No `pip check`: the conda dependency names intentionally differ from the
+  # wheel's Requires-Dist (py-opencv vs opencv-python-headless), which pip
+  # would report as a missing requirement. run_test.py verifies the real thing.
+
+about:
+  home: https://github.com/jingsongliujing/OnnxOCR
+  summary: A lightweight OCR system based on PaddleOCR, running on ONNX Runtime without PaddlePaddle
+  description: |
+    OnnxOCR runs PaddleOCR's PP-OCRv5 models on ONNX Runtime, with no
+    PaddlePaddle or PyTorch dependency. One model covers Simplified Chinese,
+    Traditional Chinese, Pinyin, English and Japanese, on x86 and ARM.
+    Detection, angle-classification and recognition models ship inside the
+    package, so general OCR works offline.
+  license: Apache-2.0
+  license_family: Apache
+  license_file: LICENSE
+  doc_url: https://github.com/jingsongliujing/OnnxOCR#readme
+  dev_url: https://github.com/KumaTea/OnnxOCR
+
+extra:
+  recipe-maintainers:
+    - KumaTea
