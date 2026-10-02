@@ -53,8 +53,11 @@ class TextDetector(PredictBase):
         self.det_output_name = self.get_output_name(self.det_onnx_session)
         log.info("Detection model loaded: {}", args.det_model_dir)
 
-        # Warm-up: avoid 2-10x slower first call due to lazy kernel initialization
-        dummy = np.zeros((1, 3, args.det_limit_side_len, args.det_limit_side_len), dtype=np.float32)
+        # Warm-up: avoid 2-10x slower first call due to lazy kernel initialization.
+        # Use a whole multiple of 32, as DetResizeForTest does: the network rejects
+        # other sizes (e.g. det_limit_side_len=340), and np.zeros rejects floats.
+        side = max(int(round(args.det_limit_side_len / 32) * 32), 32)
+        dummy = np.zeros((1, 3, side, side), dtype=np.float32)
         self.det_onnx_session.run(self.det_output_name, {self.det_input_name[0]: dummy})
 
     def order_points_clockwise(self, pts):
