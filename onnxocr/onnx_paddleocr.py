@@ -40,7 +40,7 @@ def _normalize_ppocrv6_size(model_name=None, model_size=None):
         normalized = str(model_name).lower()
         size = next((name for name in PPOCRV6_MODEL_CONFIGS if name in normalized), None)
     else:
-        size = "medium"
+        size = "small"
 
     if size not in PPOCRV6_MODEL_CONFIGS:
         raise ValueError(

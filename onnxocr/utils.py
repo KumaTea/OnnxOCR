@@ -272,7 +272,7 @@ def infer_args():
     parser.add_argument(
         "--det_model_dir",
         type=str,
-        default=str(module_dir / "models/ppocrv6/medium/det/det.onnx"),
+        default=str(module_dir / "models/ppocrv6/small/det/det.onnx"),
     )
     parser.add_argument("--det_limit_side_len", type=float, default=736)
     parser.add_argument("--det_limit_type", type=str, default="min")
@@ -313,7 +313,7 @@ def infer_args():
     parser.add_argument(
         "--rec_model_dir",
         type=str,
-        default=str(module_dir / "models/ppocrv6/medium/rec/rec.onnx"),
+        default=str(module_dir / "models/ppocrv6/small/rec/rec.onnx"),
     )
     parser.add_argument("--rec_image_inverse", type=str2bool, default=True)
     parser.add_argument("--rec_image_shape", type=str, default="3, 48, 320")
