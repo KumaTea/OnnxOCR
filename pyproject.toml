@@ -1,0 +1,56 @@
+[build-system]
+requires = ["setuptools>=77.0.3", "wheel"]
+build-backend = "setuptools.build_meta"
+
+# 2.0.0 is the yanked CalVer release 2025.5 under a SemVer number that sorts
+# below upstream's v3.0.0 tag. Package contents (code and models) are upstream
+# f51dabe, byte-identical to 2025.5; the metadata below reproduces 2025.5's,
+# including its dependency list, so pinning onnxocr==2.0.0 behaves exactly like
+# onnxocr==2025.5 did.
+[project]
+name = "onnxocr"
+version = "2.0.0"
+description = "A lightweight OCR system based on PaddleOCR"
+readme = "Readme.md"
+requires-python = ">=3.6"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+authors = [
+    {name = "jingsongliujing", email = "45508593+jingsongliujing@users.noreply.github.com"},
+]
+maintainers = [
+    {name = "KumaTea", email = "KumaTea@outlook.com"},
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Development Status :: 4 - Beta",
+]
+dependencies = [
+    "opencv-python-headless",
+    "opencv-contrib-python",
+    "onnxruntime",
+    "shapely",
+    "pyclipper",
+    "numpy<2.0.0",
+    "pymupdf",
+    "pdf2image",
+]
+
+[project.urls]
+Homepage = "https://github.com/jingsongliujing/OnnxOCR"
+Repository = "https://github.com/jingsongliujing/OnnxOCR"
+Issues = "https://github.com/jingsongliujing/OnnxOCR/issues"
+Packaging = "https://github.com/KumaTea/OnnxOCR"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["onnxocr*"]
+namespaces = false
+
+[tool.setuptools.package-data]
+# models/ has no __init__.py, so it is addressed via the enclosing package.
+# As in 2025.5, fonts/ and test_images/ are not shipped.
+"onnxocr" = [
+    "models/**/*.onnx",
+    "models/**/*.txt",
+]

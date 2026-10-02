@@ -1,0 +1,12 @@
+include LICENSE
+include Readme.md
+include Readme_cn.md
+
+recursive-include onnxocr/models *.onnx *.txt
+
+prune onnxocr/test_images
+prune onnxocr/fonts
+exclude onnxocr/readme.md
+
+global-exclude *.py[cod]
+global-exclude __pycache__
