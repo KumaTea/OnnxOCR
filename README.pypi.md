@@ -7,6 +7,19 @@ The upstream project is [jingsongliujing/OnnxOCR](https://github.com/jingsongliu
 This package is built from
 [KumaTea/OnnxOCR](https://github.com/KumaTea/OnnxOCR).
 
+## Release lines
+
+Each major version is one model generation:
+
+| Version | Models | Built from |
+|---|---|---|
+| 4.x | PP-OCRv6 small (default) and tiny, plus PP-OCRv5 | upstream `ppocrv6` branch |
+| 3.x | PP-OCRv5 | upstream `main` |
+| 2.x | PP-OCRv5 (default) and PP-OCRv4, 2025 code | upstream, June 2025 (was `2025.5`) |
+| 1.x | PP-OCRv4 | upstream, May 2025 |
+
+To stay on one generation, pin the major version, e.g. `pip install "onnxocr<4"`.
+
 ## Install
 
 ```shell
