@@ -1,0 +1,12 @@
+include LICENSE
+include Readme.md
+include Readme_cn.md
+
+recursive-include onnxocr/models/ppocrv4 *.onnx
+include onnxocr/models/ch_ppocr_server_v2.0/ppocr_keys_v1.txt
+
+prune onnxocr/test_images
+prune onnxocr/fonts
+
+global-exclude *.py[cod]
+global-exclude __pycache__

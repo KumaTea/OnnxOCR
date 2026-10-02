@@ -1,0 +1,56 @@
+[build-system]
+requires = ["setuptools>=77.0.3", "wheel"]
+build-backend = "setuptools.build_meta"
+
+# 1.x is the PP-OCRv4 line: upstream 353a61e, the last commit before PP-OCRv5
+# landed. Package code is unmodified upstream; only PP-OCRv4 det/rec/cls and
+# the ppocr_keys_v1 dictionary they need are shipped. The unused
+# ch_ppocr_server_v2.0 det/cls models (~49 MB) stay out of the wheel.
+[project]
+name = "onnxocr"
+version = "1.0.0"
+description = "A lightweight OCR system based on PaddleOCR"
+readme = "Readme.md"
+requires-python = ">=3.6"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+authors = [
+    {name = "jingsongliujing", email = "45508593+jingsongliujing@users.noreply.github.com"},
+]
+maintainers = [
+    {name = "KumaTea", email = "KumaTea@outlook.com"},
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Development Status :: 4 - Beta",
+]
+# The modules this code imports, verified by a clean install + inference.
+# numpy<2.0.0 as in 2.x: utils.create_blank_img overflows int8 under numpy 2
+# (fixed in 3.x), and 1.x carries no source patches.
+dependencies = [
+    "opencv-python-headless",
+    "onnxruntime",
+    "shapely",
+    "pyclipper",
+    "numpy<2.0.0",
+    "pillow",
+]
+
+[project.urls]
+Homepage = "https://github.com/jingsongliujing/OnnxOCR"
+Repository = "https://github.com/jingsongliujing/OnnxOCR"
+Issues = "https://github.com/jingsongliujing/OnnxOCR/issues"
+Packaging = "https://github.com/KumaTea/OnnxOCR"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["onnxocr*"]
+namespaces = false
+
+[tool.setuptools.package-data]
+# models/ has no __init__.py, so it is addressed via the enclosing package.
+# As in 2.x, fonts/ and test_images/ are not shipped.
+"onnxocr" = [
+    "models/ppocrv4/**/*.onnx",
+    "models/ch_ppocr_server_v2.0/ppocr_keys_v1.txt",
+]
