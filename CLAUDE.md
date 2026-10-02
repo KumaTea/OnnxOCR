@@ -28,7 +28,8 @@ Yank `3.1.0` once `3.1.1` is live; it crashes in `ONNXPaddleOcr()` when
   Never publish a number upstream already tags for different code (upstream's
   `v3.0.0` is `4420385`).
 - **Packaging layer.** These files are ours: `pyproject.toml`, `MANIFEST.in`,
-  `README.pypi.md`, `conda-recipe/`, `CLAUDE.md`, `PATCHES.md`. Add new files
+  `README.pypi.md`, `conda-recipe/`, `build_release.ps1`, `CLAUDE.md`,
+  `PATCHES.md`. Add new files
   rather than editing upstream ones (`Readme*.md`, `requirements.txt`, ...) so
   upstream merges stay conflict-free. `README.pypi.md` exists because
   `README.md` would collide with upstream's `Readme.md` on Windows.
@@ -63,20 +64,29 @@ Yank `3.1.0` once `3.1.1` is live; it crashes in `ONNXPaddleOcr()` when
 
 ## Building and verifying a release
 
-Work on other lines in a throwaway worktree:
-`git worktree add <tmp-dir> release/2.x`.
+`.\build_release.ps1` builds any line from its committed branch, never from
+your working tree. Run e.g. `.\build_release.ps1 -Line 3,4 -Smoke`. Its `$Lines`
+table records each line's branch, upstream base commit, and how the branch was
+made. Update that table when a line's branch or base changes. For each line it:
 
-1. `uv build --out-dir dist`. This builds the sdist first, then the wheel from
-   the sdist, so `MANIFEST.in` governs both.
-2. `uvx twine check dist/onnxocr-<ver>*`.
-3. Diff the new wheel's `RECORD` against the previous release of the same line.
-   Only the files you meant to change should differ. For 2.x, every package
-   file must match `2025.5`'s sha256. That relies on building on Windows with
-   `core.autocrlf=true`, because `2025.5` shipped CRLF files.
-4. Clean venv (`uv venv -p 3.12`, `uv pip install dist/<wheel>`) and run:
-   `ONNXPaddleOcr()` det+cls+rec on `onnxocr/test_images/`, `sav2Img`, and
-   `det_limit_side_len=340, det_limit_type="min"`, the way
-   `D:\GitHub\genshin-dual-sub` calls it.
-5. The maintainer uploads: `uvx twine upload dist/onnxocr-<ver>*`.
-6. Conda, after the PyPI upload: `conda-recipe\build_conda.ps1 -Version <ver>`.
-   The recipe pins the PyPI sdist's sha256.
+1. checks the branch out into a temporary detached worktree and verifies the
+   upstream base is an ancestor. It warns if `upstream/main`, `main` or
+   `upstream/ppocrv6` has commits the line hasn't merged yet;
+2. pulls Git LFS models (origin, then upstream) and refuses LFS pointers;
+3. runs `uv build`. This builds the sdist first, then the wheel from the
+   sdist, so `MANIFEST.in` governs both;
+4. runs `twine check` and enforces PyPI's 100 MB per-file limit;
+5. with `-Smoke`, installs the wheel into a clean Python 3.12 venv and runs
+   det+cls+rec with `det_limit_side_len=340, det_limit_type="min"` (the way
+   `D:\GitHub\genshin-dual-sub` calls it), plus `sav2Img`.
+
+Then, by hand:
+
+- Diff the new wheel's `RECORD` against the previous release of the same line.
+  Only the files you meant to change should differ. For 2.x, every package file
+  must match `2025.5`'s sha256. That relies on `core.autocrlf=true`, because
+  `2025.5` shipped CRLF files; the script warns if it's off.
+- The maintainer uploads: the script prints the `uvx twine upload` command.
+- Conda, after the PyPI upload: `conda-recipe\build_conda.ps1 -Version <ver>`.
+  The recipe pins the PyPI sdist's sha256. Its dependency list matches 3.x and
+  4.x only; 1.x and 2.x are PyPI-only.
