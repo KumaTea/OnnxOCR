@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "onnxocr"
-version = "3.1.0"
+version = "3.1.1"
 description = "A lightweight OCR system based on PaddleOCR, running on ONNX Runtime without PaddlePaddle"
 readme = "README.pypi.md"
 # onnxruntime dropped Python 3.10 at 1.24.4, so a >=3.10 floor would both pin
