@@ -12,6 +12,9 @@ recursive-include onnxocr/rapid_doc/resources *.onnx *.ftz *.html
 # Engine/model config files shipped inside the rapid_* packages.
 recursive-include onnxocr *.yaml *.yml *.json
 
+# PP-OCRv6 medium alone hits PyPI's 100 MB per-file limit; see pyproject.toml.
+prune onnxocr/models/ppocrv6/medium
+
 # ~8 MB of demo images; no runtime code path depends on them.
 prune onnxocr/test_images
 

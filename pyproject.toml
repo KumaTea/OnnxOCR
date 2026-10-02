@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "onnxocr"
-version = "3.1.1"
+version = "4.0.0"
 description = "A lightweight OCR system based on PaddleOCR, running on ONNX Runtime without PaddlePaddle"
 readme = "README.pypi.md"
 # onnxruntime dropped Python 3.10 at 1.24.4, so a >=3.10 floor would both pin
@@ -145,3 +145,8 @@ namespaces = false
     "resources/**/*.ftz",
     "resources/**/*.html",
 ]
+
+[tool.setuptools.exclude-package-data]
+# PP-OCRv6 medium det+rec deflate to ~100 MB, which alone hits PyPI's 100 MB
+# per-file limit. The wheel ships tiny and small; medium is a download.
+"onnxocr" = ["models/ppocrv6/medium/**"]
